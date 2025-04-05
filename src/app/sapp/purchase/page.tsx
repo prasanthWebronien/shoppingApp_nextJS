@@ -23,10 +23,14 @@ const CollectProduct = () => {
         if (await handleDispencing(checkOutProducts, userID, storeID, accessToken, refreshToken)) {
             route.push('purchase/dispensing');
         }
-
     }
 
     useEffect(() => {
+        let doorStatus = localStorage.getItem('doorStatus');
+        if (!session?.user?.fname && doorStatus != 'opened') {
+            route.push("/sapp");
+            return;
+        }
         const aToken = session?.user?.aToken ?? '';
         const rToken = session?.user?.rToken ?? '';
         const store = localStorage.getItem('storeID') || '';

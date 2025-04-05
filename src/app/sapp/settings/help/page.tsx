@@ -16,8 +16,9 @@ const HelpPage = () => {
   const [selectedContent, setSelectedContent] = useState<'faq' | 'videos'>('faq');
 
   useEffect(()=>{
+ 
     if (!session?.user.fname) {
-      router.push('/sapp');
+      router.push('/sapp/dashBoard2');
     }
   },[])
 

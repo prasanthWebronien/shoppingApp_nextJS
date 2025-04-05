@@ -94,13 +94,7 @@ const StoresPage = () => {
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, "_blank");
   }
 
-  const handleIconclick = () => {
-    router.push('/sapp/dashBoard');
-  }
-
   const handleStoreClick = (store: Shop) => {
-    let doorStatus=localStorage.getItem('door')|| '';
-
     if (Number(store.distanceInKm) <= Number(Distance)) {
       localStorage.setItem('storeID', store.id);
       router.push('');
@@ -113,7 +107,7 @@ const StoresPage = () => {
     <div className="h-[100dvh] font-poppins bg-white text-black">
       <div className="flex flex-col px-7 h-1/2">
         <div className="flex items-center justify-between h-20">
-          <ArrowLeftIcon className="h-10 w-10 text-buttonColor" onClick={handleIconclick} />
+          <ArrowLeftIcon className="h-10 w-10 text-buttonColor" onClick={()=> router.push('/sapp/dashBoard2')} />
           <h1 className="text-black font-bold text-xl">Stores</h1>
           <UserIcon className="h-10 w-10 text-buttonColor" onClick={() => { router.push(`/sapp/settings`) }} />
         </div>

@@ -11,6 +11,12 @@ const DispensingPage = () => {
     const { data: session } = useSession();
 
     useEffect(() => {
+        let doorStatus = localStorage.getItem('doorStatus');
+        if (!session?.user?.fname && doorStatus != 'opened') {
+            route.push("/sapp");
+            return;
+        }
+        
         const aToken = session?.user?.aToken ?? '';
         const rToken = session?.user?.rToken ?? '';
         const userID = session?.user.id ?? '';

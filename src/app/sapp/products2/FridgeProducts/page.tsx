@@ -1,6 +1,6 @@
 'use client'
 
-
+import { useSearch } from "../context/SearchContext";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,8 @@ import { useShowCart } from "../context/ShowCartContext";
 
 
 const FridgeProducts = () => {
+    const { searchText, setSearchText, searchResults } = useSearch();
+    const router = useRouter();
     const { showCart } = useShowCart();
     const { data: session } = useSession();
     const [storeID, setStoreID] = useState('');
@@ -22,6 +24,12 @@ const FridgeProducts = () => {
     const environment = process.env.NEXT_PUBLIC_APP_ENVIRONMENT!;
 
     useEffect(() => {
+        setSearchText('');
+        let doorStatus = localStorage.getItem('doorStatus') || '';
+        if (!session?.user?.fname && doorStatus !== 'opened') {
+            router.push('/sapp/dashBoard2');
+        }
+
         const store = localStorage.getItem('storeID') || '';
         const aToken = session?.user?.aToken ?? '';
         const rToken = session?.user?.rToken ?? '';

@@ -39,9 +39,9 @@ const StoreDetailsPage = (props: Props) => {
     }, [session?.user?.aToken, session?.user?.rToken, storeId]);
 
     useEffect(() => {
-     
-        if (!session?.user.fname) {
-            router.push("/sapp");
+        let doorStatus=localStorage.getItem('doorStatus') || '';
+        if (!session?.user.fname && doorStatus!='opened') {
+            router.push("/sapp/dashBoard2");
         }
 
         fetchStores();

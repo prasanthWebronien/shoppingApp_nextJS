@@ -26,7 +26,7 @@ interface NotNeartoStoreProps {
 }
 
 const Cart = () => {
-    const route= useRouter();
+    const route = useRouter();
     const { setShowCart } = useShowCart();
     const [ref, setRef] = useState('');
     const { data: session } = useSession();
@@ -75,7 +75,7 @@ const Cart = () => {
         const store = localStorage.getItem('storeID') || '';
         const cartVMProducts: CartProduct[] = JSON.parse(localStorage.getItem("VMcart") || '[]');
         const cartFProducts: CartProduct[] = JSON.parse(localStorage.getItem("FPcart") || '[]');
-        const cartNoBProducts: CartProduct[] = JSON.parse(localStorage.getItem("cart") || '[]');
+        const cartNoBProducts: CartProduct[] = JSON.parse(localStorage.getItem("NBCcart") || '[]');
         setCartVMProducts(cartVMProducts);
         setCartFProducts(cartFProducts);
         setCartNoBProducts(cartNoBProducts);
@@ -89,9 +89,12 @@ const Cart = () => {
         }
 
         fetchProduct(store, aToken, cartVMProducts, cartFProducts, cartNoBProducts, rToken);
-        let total = localStorage.getItem('total');
-    }, [ref])
+        let VMtotal = Number(localStorage.getItem('VMtotal')) || 0;
+        let NOBTotal = Number(localStorage.getItem('NBCTotal')) || 0;
+        let FPcart = Number(localStorage.getItem('FPtotal')) || 0;
 
+        let actualTotal = VMtotal + NOBTotal + FPcart;
+    }, [ref])
 
     const fetchProduct = async (store: string, aToken: string, cartVMProducts: CartProduct[], cartFProducts: CartProduct[], cartNoBProducts: CartProduct[], rToken: string) => {
         let combinedCartProducts: CartProduct[] = []; // Temporary array to store all products
@@ -223,7 +226,7 @@ const Cart = () => {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 px-2 pb-5 font-poppins z-20">
+        <div className="fixed inset-0 flex items-end justify-center bg-black bg-opacity-50 px-2 pb-5 font-poppins z-50">
             <div className="flex flex-col relative w-full rounded-lg bg-white">
                 <div className=" rounded-lg flex items-center justify-between h-20 absoulte top-0 left-0 w-full bg-white px-5">
                     <span className="font-semibold text-2xl">Cart</span>
@@ -233,9 +236,9 @@ const Cart = () => {
 
                 <div className="flex-1 overflow-y-auto px-2 min-h-[300px]">
                     {
-                        setCartProducts.length <= 0 ? (
+                        allCartProducts.length <= 0 ? (
                             <div className="flex flex-col items-center justify-center text-black w-full my-20 flex-1 px-10 gap-6" >
-                                <Image src='/images/emptyCart.png' alt='emptyCart' className="h-36 w-36" width={1000} height={1000} />
+                                <Image src='/images/emptyCart.png' alt='emptyCart' className="h-20 w-20" width={1000} height={1000} />
                                 <strong>Your cart i s empty</strong>
                                 <p className="text-center">Looks like you have no items in your cart start  adding products to your cart</p>
                             </div>
@@ -271,7 +274,7 @@ const Cart = () => {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex text-2xl font-bold font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
+                                                <div className="flex text-2xl font-bold font-semibold font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
                                                     <button onClick={() => updateCartProductQuantity(product, '-', setRef)}>-</button>
                                                     <span>{product.productCount}</span>
                                                     <button onClick={() => updateCartProductQuantity(product, '+', setRef)}>+</button>
@@ -315,7 +318,7 @@ const Cart = () => {
                                                                         </span>
                                                                     </div>
                                                                 </div>
-                                                                <div className="flex font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
+                                                                <div className="flex text-2xl font-bold font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
                                                                     <button onClick={() => updateCartProductQuantity(pro, '-', setRef)}>-</button>
                                                                     <span>{rule.productQuantiy * rule.saleRule.count}</span>
                                                                     <button onClick={() => updateCartProductQuantity(pro, '+', setRef)}>+</button>
@@ -342,7 +345,7 @@ const Cart = () => {
                                                                     </span>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
+                                                            <div className="flex text-2xl font-bold font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
                                                                 <button onClick={() => updateCartProductQuantity(pro, '-', setRef)}>-</button>
                                                                 <span>{total}</span>
                                                                 <button onClick={() => updateCartProductQuantity(pro, '+', setRef)}>+</button>
@@ -361,7 +364,7 @@ const Cart = () => {
 
                 <div className=" rounded-lg w-full h-20 bg-white flex justify-center items-center absoulte bottom-0 left-0 w-full pb-3">
                     <button className="bg-buttonColor text-white rounded-full text-center px-20 py-4 font-bold text-2xl"
-                    onClick={handleCheckouClick}>{cartProducts.length > 0 ? ('Check out') : ('Start shopping')}</button>
+                        onClick={handleCheckouClick}>{cartProducts.length > 0 ? ('Check out') : ('Start shopping')}</button>
                 </div>
             </div>
         </div>

@@ -3,13 +3,21 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation"
 import React, { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
 
 const dispensingAlert = () => {
     const route = useRouter();
     const [total, setTotal] = useState<string>('');
     const [currency, setCurrency] = useState<string>('SEK');
+    const { data: session } = useSession();
 
     useEffect(() => {
+        let doorStatus = localStorage.getItem('doorStatus');
+        if (!session?.user?.fname && doorStatus != 'opened') {
+            route.push("/sapp");
+            return;
+        }
+
         let total = localStorage.getItem('total') || '';
         const storedCurrency = localStorage.getItem('currency');
 

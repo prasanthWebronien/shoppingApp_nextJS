@@ -19,6 +19,7 @@ const CallSupportPage = () => {
     const [filteredShops, setFilteredShops] = useState<Shop[]>([]);
     const { data: session } = useSession();
 
+
     const fetchStores = useCallback(async () => {
         try {
             const accessToken = session?.user?.aToken ?? '';
@@ -36,10 +37,10 @@ const CallSupportPage = () => {
     }, [session?.user?.aToken]);
 
     useEffect(() => {
-        let doorStatus=localStorage.getItem('door')|| '';
+        let doorStatus=localStorage.getItem('doorStatus')|| '';
 
-        if (!session?.user.fname)  {
-            router.push("/sapp");
+        if (!session?.user.fname && doorStatus!=='opened')  {
+            router.push("/sapp/dashBoard2");
         }
         fetchStores();
     }, [fetchStores, router, session?.user.fname]);

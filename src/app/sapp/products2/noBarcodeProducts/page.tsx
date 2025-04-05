@@ -8,17 +8,25 @@ import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import Cart from '../components/cart';
 import { useShowCart } from "../context/ShowCartContext";
+import { useSearch } from "../context/SearchContext";
 
 const categoryPage = () => {
-    const { showCart } = useShowCart();
     const router = useRouter();
+    const { showCart } = useShowCart();
     const { data: session } = useSession();
     const [storeID, setStoreID] = useState('');
+    const { searchText, setSearchText, searchResults } = useSearch();
     const [categorys, setCategorys] = useState<any[]>([]);
     const apiUrl = process.env.NEXT_PUBLIC_APP_API_URL!;
     const environment = process.env.NEXT_PUBLIC_APP_ENVIRONMENT!;
 
     useEffect(() => {
+        setSearchText('');
+        let doorStatus = localStorage.getItem('doorStatus') || '';
+        if (!session?.user?.fname && doorStatus !== 'opened') {
+            router.push('/sapp/dashBoard2');
+        }
+
         const store = localStorage.getItem('storeID') || '';
         const aToken = session?.user?.aToken ?? '';
         const rToken = session?.user?.rToken ?? '';
@@ -39,7 +47,6 @@ const categoryPage = () => {
                     },
                 }
             );
-            console.log(response.data.data);
             setCategorys(response.data.data);
         } catch (err) {
             console.log(err);

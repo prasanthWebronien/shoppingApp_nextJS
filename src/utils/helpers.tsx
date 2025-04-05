@@ -252,7 +252,7 @@ export const updateSaleRuleProductInCart = (Product: TypeProduct, operation: str
 }
 
 export const updateDiscountProductInCartNBC = (newProduct: TypeProduct, action: string, setProducts: SetProductsFn, setTotalPrice: (totalPrice: number) => void) => {
-
+  console.log(';ll');
   let cartProducts: CartProduct[] = [];
   const storedCart = localStorage.getItem('NBCcart');
   if (storedCart) {
@@ -315,7 +315,7 @@ export const updateDiscountProductInCartNBC = (newProduct: TypeProduct, action: 
 }
 
 export const updateNormalProductIncartNBC = (newProduct: TypeProduct, action: string, setProducts: SetProductsFn, setTotalPrice: (totalPrice: number) => void) => {
-
+  console.log(';ll');
   let cartProducts: CartProduct[] = [];
   const storedCart = localStorage.getItem('NBCcart');
   if (storedCart) {
@@ -371,6 +371,7 @@ export const updateNormalProductIncartNBC = (newProduct: TypeProduct, action: st
 };
 
 export const updateSaleRuleProductInCartNBC = (Product: TypeProduct, operation: string, setProducts: SetProductsFn, setTotalPrice: (totalPrice: number) => void, setSalerule: any) => {
+  console.log(';ll');
   let cartProducts: CartProduct[] = [];
   let storedCart = localStorage.getItem('NBCcart') || null;
   if (storedCart === '[]') {
@@ -615,7 +616,6 @@ export const updateSaleRuleProductInCartVMP = (Product: TypeProduct, operation: 
 
     if (newProductQuantity !== 0) {
       resultArr = findSaleRules(Product, newProductQuantity);
-      console.log(resultArr);
       saleRuleProduct.saleRuleDetails = resultArr;
       saleRuleProduct.totalCount = newProductQuantity;
       saleRuleProduct.totalPrice = findSaleRuleProductTOtal(saleRuleProduct);

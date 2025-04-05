@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { updateDoorOpenedSession } from "@/lib/auth/updateDoorOpenedSession";
 import { fetchStoresUtils } from '@/utils/helpers';
-
+import { refreshSession } from "@/lib/auth/refreshSession";
 const DoorOpening = () => {
     const maxRetries = 5;
     const retryRef = useRef(0);
@@ -55,10 +55,10 @@ const DoorOpening = () => {
 
     const onSwipeComplete = () => {
         const user = session?.user
-        dooropening(accessToken, user, storeID);
+        dooropening(accessToken, user, storeID, refreshToken);
     };
 
-    const checkStatus = async (userId: string, taskId: string, storeID: string, aToken: string) => {
+    const checkStatus = async (userId: string, taskId: string, storeID: string, aToken: string, rToken: string) => {
         try {
             const res = await axios.get(`${apiUrl}/storedatasync/erp-task/${userId}/${taskId}`,
                 {
@@ -74,10 +74,10 @@ const DoorOpening = () => {
             //  let doorStatus='done';
 
             if (doorStatus === "new") {
-                setTimeout(() => checkStatus(userId, taskId, storeID, aToken), 1000);
+                setTimeout(() => checkStatus(userId, taskId, storeID, aToken, rToken), 1000);
             } else if (doorStatus === "done") {
                 await updateDoorOpenedSession(true);
-                localStorage.setItem('door', 'opened');
+                localStorage.setItem('doorStatus', 'opened');
                 router.push('/sapp/dashBoard2');
             } else if (doorStatus === "banned") {
                 router.push('/sapp/StoreDoor/banned');
@@ -91,7 +91,13 @@ const DoorOpening = () => {
                 setTimeout(checkStatus, 1000);
             } else {
                 setStatus("error");
-                // Show "Try again" message
+            }
+
+            if (err.status == 401) {
+                const newToken: any = await refreshSession(refreshToken);
+                if (newToken != null) {
+                    checkStatus(userId, taskId, storeID, aToken, rToken);
+                }
             }
         }
         finally {
@@ -99,7 +105,7 @@ const DoorOpening = () => {
         }
     };
 
-    const dooropening = async (aToken: string, user: any, storeID: string) => {
+    const dooropening = async (aToken: string, user: any, storeID: string, refreshToken: string) => {
         setOpeningDoor(true);
         try {
             let ipResponse = await axios.get('https://api.ipify.org?format=json');
@@ -126,15 +132,25 @@ const DoorOpening = () => {
                     }
                 }
             );
-            console.log(response);
 
             if (response.status === 201) {
                 let userID = response.data.userId;
                 let taskID = response.data.id
-                checkStatus(userID, taskID, storeID, aToken);
+                checkStatus(userID, taskID, storeID, aToken, refreshToken);
             }
-        } catch (error) {
-            console.error('Error in dooropening:', error);
+        } catch (error: unknown) {
+            if (
+                typeof error === "object" &&
+                error !== null &&
+                "status" in error &&
+                (error as { status: number }).status === 401
+            ) {
+                const newToken: any = await refreshSession(refreshToken);
+                if (newToken != null) {
+                    dooropening(newToken.token, user, storeID, refreshToken);
+                }
+            }
+            console.error('Error fetching products:', error);
         } finally {
 
         }
@@ -197,7 +213,6 @@ const DoorOpening = () => {
                 </div>
             </div>
 
-            {/* Loader when `doorOpeningLoder` is true */}
             {doorOpeningLoder && (
                 <div className="h-[100dvh] flex flex-1 items-center justify-center bg-white">
                     <Image src='/images/loaderGreen.gif' alt='loader' height={1000} width={1000} className="w-20 h-20" />

@@ -12,22 +12,21 @@ const HistoryPage = () => {
     const { data: session } = useSession();
     const userID = session?.user?.id;
     const [loading, setLoading] = useState<boolean>(false);
-    const [nextPage, setNextPage] = useState('');
+    const [nextPage, setNextPage] = useState<string>('');
     const apiUrl = process.env.NEXT_PUBLIC_APP_AUTH_API_URL
     const environment = process.env.NEXT_PUBLIC_APP_ENVIRONMENT
     const [purchaseDetails, setPurchaseDetails] = useState<any>([]);
 
     useEffect(() => {
         if (!session?.user.fname) {
-            route.push("/sapp");
+            route.push("/sapp/dashBoard2");
         }
         let accessToken: any = session?.user.aToken;
         fetchPurchaseHistory(accessToken);
-    }, [route, session?.user.fname]);
+    }, []);
 
     const fetchPurchaseHistory = async (accessToken: string) => {
         setLoading(true);
-
         try {
             const response = await axios.get(`${apiUrl}/storedatasync/erp-task-user-v1/${userID}/purchase-sync`,
                 {
@@ -38,8 +37,6 @@ const HistoryPage = () => {
                     }
                 }
             );
-
-            console.log(response.data.data[0]);
             if (response.status) {
                 let next = (response.data.next);
                 if (next) {
@@ -47,7 +44,6 @@ const HistoryPage = () => {
                 }
                 setPurchaseDetails(response.data.data);
             }
-
         } catch (error: unknown) {
             let refreshToken = session?.user.rToken ?? ''
             if (typeof error === "object" && error !== null && "status" in error && (error as { status: number }).status === 401) {
@@ -88,7 +84,8 @@ const HistoryPage = () => {
         <div className="text-black bg-white flex flex-col gap-12 py-8 px-5">
             <div className="flex ietms-center justify-center relative fixed top-0 left-0">
                 <strong className="text-xl">History</strong>
-                <Image src='/images/leftArrowGreen.png' alt='arrowLeft' width={1000} height={1000} className=" h-7 w-7 absolute left-0" />
+                <Image src='/images/leftArrowGreen.png' alt='arrowLeft' width={1000} height={1000} className=" h-9 w-9 absolute left-0" 
+                onClick={()=>route.push('/sapp/settings')}/>
             </div>
 
             <div className="flex flex-col gap-5 overflow-y-auto">

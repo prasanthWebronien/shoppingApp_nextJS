@@ -21,7 +21,7 @@ const SettingsPage = () => {
 
     useEffect(() => {
         if (!session?.user.fname && !session?.user.doorOpend) {
-            router.push('/sapp');
+            router.push('/sapp/dashBoard2');
         }
 
         let storeUser = session?.user ?? null;
@@ -87,9 +87,9 @@ const SettingsPage = () => {
     return (
         <div>
             <div className="flex flex-col px-6 h-[100dvh] font-poppins bg-white py-4 gap-3">
-                <div className="flex items-center justify-center relative py-2 h-8">
+                <div className="flex items-center justify-center relative py-8 h-10">
                     <ArrowLeftIcon className="absolute h-10 w-10 left-0 text-buttonColor"
-                        onClick={() => router.push("/sapp/dashBoard")} />
+                        onClick={() => router.push("/sapp/dashBoard2")} />
                     <strong className="font-bold text-2xl text-black">Settings</strong>
                 </div>
 
@@ -106,7 +106,7 @@ const SettingsPage = () => {
                                 <h1 className="font-bold text-xl text-lightBlack">Profile</h1>
                             </div>
 
-                            <div className="flex items-center justify-start gap-4 py-3 border-b-2 border-gray-300" onClick={() => { router.push('settings/history') }}>
+                            <div className="flex items-center justify-start gap-4 py-3 border-b-2 border-gray-300" onClick={() => { router.push('settings/history2') }}>
                                 <UserIcon className="h-8 w-8 text-buttonColor rounded-full" />
                                 <h1 className="font-bold text-xl text-lightBlack">History</h1>
                             </div>

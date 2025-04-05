@@ -1,5 +1,6 @@
 'use client'
 
+import { useSearch } from "../../context/SearchContext";
 import { useParams } from 'next/navigation';
 import axios from "axios";
 import Image from "next/image";
@@ -7,7 +8,7 @@ import { TypeProduct, CartProduct } from "@/types/product";
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
-import { updateDiscountProductInCart, updateNormalProductIncart, updateSaleRuleProductInCart, changeProductQuantity, fetchNobareCodeProducts, fetchCurrence, findTotal } from '@/utils/helpers';
+import { updateDiscountProductInCartNBC, updateNormalProductIncartNBC, updateSaleRuleProductInCartNBC,  updateDiscountProductInCart, updateNormalProductIncart, updateSaleRuleProductInCart, changeProductQuantity, fetchNobareCodeProducts, fetchCurrence, findTotal } from '@/utils/helpers';
 import CloseIcon from "../../../components/icons/CloseIcon";
 import Cart from '../../components/cart';
 import { useShowCart } from "../../context/ShowCartContext";
@@ -27,6 +28,7 @@ type Category = {
 };
 
 const categoryProducts = () => {
+    const { searchText, setSearchText, searchResults  } = useSearch();
     const { showCart } = useShowCart();
     const router = useRouter();
     const { data: session } = useSession();
@@ -50,6 +52,11 @@ const categoryProducts = () => {
     const environment = process.env.NEXT_PUBLIC_APP_ENVIRONMENT!;
 
     useEffect(() => {
+        setSearchText('');
+        let doorStatus=localStorage.getItem('doorStatus') || '';
+        if(!session?.user?.fname && doorStatus!=='opened'){
+          router.push('/sapp/dashBoard2');
+        }
         const store = localStorage.getItem('storeID') || '';
         const aToken = session?.user?.aToken ?? '';
         const rToken = session?.user?.rToken ?? '';
@@ -71,11 +78,11 @@ const categoryProducts = () => {
 
     const handleAddClick = (Product: TypeProduct) => {
         if (Product.isDiscount) {
-            updateDiscountProductInCart(Product, '+', setProducts, setTotalPrice);
+            updateDiscountProductInCartNBC(Product, '+', setProducts, setTotalPrice);
         } else if (Product.sale && Product.salePrice === 0 && Product.saleGroupRules.length > 0) {
-            updateSaleRuleProductInCart(Product, '+', setProducts, setTotalPrice, setSalerule);
+            updateSaleRuleProductInCartNBC(Product, '+', setProducts, setTotalPrice, setSalerule);
         } else {
-            updateNormalProductIncart(Product, '+', setProducts, setTotalPrice);
+            updateNormalProductIncartNBC(Product, '+', setProducts, setTotalPrice);
         }
     };
 
@@ -87,22 +94,22 @@ const categoryProducts = () => {
         }
 
         if (Product.isDiscount) {
-            updateDiscountProductInCart(Product, '+', setProducts, setTotalPrice);
+            updateDiscountProductInCartNBC(Product, '+', setProducts, setTotalPrice);
         } else if (Product.sale && Product.salePrice === 0 && Product.saleGroupRules.length > 0) {
 
-            updateSaleRuleProductInCart(Product, '+', setProducts, setTotalPrice, setSalerule);
+            updateSaleRuleProductInCartNBC(Product, '+', setProducts, setTotalPrice, setSalerule);
         } else {
-            updateNormalProductIncart(Product, '+', setProducts, setTotalPrice);
+            updateNormalProductIncartNBC(Product, '+', setProducts, setTotalPrice);
         }
     };
 
     const handleDecrement = (Product: TypeProduct) => {
         if (Product.isDiscount) {
-            updateDiscountProductInCart(Product, '-', setProducts, setTotalPrice);
+            updateDiscountProductInCartNBC(Product, '-', setProducts, setTotalPrice);
         } else if (Product.sale && Product.salePrice === 0 && Product.saleGroupRules.length > 0) {
-            updateSaleRuleProductInCart(Product, '-', setProducts, setTotalPrice, setSalerule);
+            updateSaleRuleProductInCartNBC(Product, '-', setProducts, setTotalPrice, setSalerule);
         } else {
-            updateNormalProductIncart(Product, '-', setProducts, setTotalPrice);
+            updateNormalProductIncartNBC(Product, '-', setProducts, setTotalPrice);
         }
     };
 

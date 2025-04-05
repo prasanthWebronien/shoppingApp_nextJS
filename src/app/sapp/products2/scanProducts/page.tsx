@@ -2,11 +2,16 @@
 import { useState, useRef, useEffect } from "react";
 import Cart from '../components/cart';
 import { useShowCart } from "../context/ShowCartContext";
-
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useSearch } from "../context/SearchContext";
 
 const ScanProducts = () => {
+  const route = useRouter();
   const { showCart } = useShowCart();
+  const { data: session } = useSession();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const { searchText, setSearchText, searchResults  } = useSearch();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const openCamera = async () => {
@@ -30,16 +35,21 @@ const ScanProducts = () => {
   };
 
   useEffect(() => {
-    openCamera(); // Open camera when component mounts
-    return () => closeCamera(); // Cleanup when unmounting
+    setSearchText('');
+    let doorStatus = localStorage.getItem('doorStatus') || '';
+    if (!session?.user?.fname && doorStatus !== 'opened') {
+      route.push('/sapp/dashBoard2');
+    }
+    openCamera();
+    return () => closeCamera();
   }, []);
 
   return (
     <>
-      <div className="h-full flex flex-col items-center justify-center h-screen p-4 bg-gray-100 z-[100]">
-        <video ref={videoRef} autoPlay playsInline className="w-full h- border-2 border-gray-400 rounded-md"></video>
+      <div className="h-[900px] flex flex-col items-center justify-center ">
+        <video ref={videoRef} autoPlay playsInline className="w-full   border-2 border-gray-400 rounded-md"></video>
       </div>
-      
+
       {showCart && <Cart />}
     </>
   );

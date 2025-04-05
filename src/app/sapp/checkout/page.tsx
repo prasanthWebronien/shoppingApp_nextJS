@@ -24,7 +24,6 @@ const CheckoutPage = () => {
     const [products, setProducts] = useState<TypeProduct[]>([]);
     const [checkOutProducts, setCheckoutProducts] = useState<CheckOutProduct[]>([]);
     const [cartProducts, setCartProducts] = useState<CartProduct[]>([]);
-    // const [proccessedProducts,setProccessedProducts]=useState<ProductWithSaleRule []>([]);
     const environment = process.env.NEXT_PUBLIC_APP_ENVIRONMENT
     const productPurchaseAPI_URL = process.env.NEXT_PUBLIC_APP_AUTH_API_URL
 
@@ -51,8 +50,6 @@ const CheckoutPage = () => {
         if (storedCurrency) {
             setCurrency(storedCurrency);
         }
-
-        // Total = cartProduct;
         fetchProduct(store, aToken, addedProducts, rToken);
     }, []);
 

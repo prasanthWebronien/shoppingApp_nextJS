@@ -12,6 +12,9 @@ import { updateDiscountProductInCartVMP, updateNormalProductIncartVMP, updateSal
 import CloseIcon from "../../components/icons/CloseIcon";
 import Cart from '../components/cart';
 import { useShowCart } from "../context/ShowCartContext";
+import { useSearch } from "../context/SearchContext";
+import AgeRestriction from '../components/ageRistriction';
+import { AnyAaaaRecord } from 'node:dns';
 
 type Category = {
     id: string;
@@ -26,37 +29,40 @@ type Category = {
     productCount: number;
 };
 
-const categoryProducts = ( ) => {
-    const { showCart } = useShowCart();
+const categoryProducts = () => {
     const router = useRouter();
+    const { showCart } = useShowCart();
     const { data: session } = useSession();
     const [storeID, setStoreID] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [isAlert, setIsAlert] = useState<boolean>(false);
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    // const [totalCount, setTotalCount] = useState<number>(0);
     const [totalPrice, setTotalPrice] = useState<number>(0);
     const [currence, setCurrence] = useState<string>('SEK');
+    const [ageRestriction, setAgerestriction] = useState<number>(0);
+    const [saleRule, setSalerule] = useState<any[]>([]);
     const [products, setProducts] = useState<TypeProduct[]>([]);
     const [noProduct, setNoproduct] = useState<boolean>(false);
     const [showPopup, setShowPopup] = useState<boolean>(false);
     const [alertMessage, setAlertMessage] = useState<string>('');
-    const [saleRule, setSalerule] = useState<any[]>([]);
+    const [selectedProduct, setSelectedProduct] = useState<any>({});
+    const [isAgeRestriction, setIsAgeRestriction] = useState(false);
     const [isProductfetched, setisProductfetched] = useState<boolean>(false);
     const [saleruleProduct, setSaleruleProduct] = useState<TypeProduct[]>([]);
-    const [accessToken, setAccessToken] = useState<string>('');
-    const [refreshToken, setRefresfToken] = useState<string>('');
-    const apiUrl = process.env.NEXT_PUBLIC_APP_API_URL!;
-    const environment = process.env.NEXT_PUBLIC_APP_ENVIRONMENT!;
+    const { searchText, setSearchText } = useSearch();
 
     useEffect(() => {
+        setSearchText('');
+        let doorStatus = localStorage.getItem('doorStatus') || '';
+        if (!session?.user?.fname && doorStatus !== 'opened') {
+            router.push('/sapp/dashBoard2');
+        }
         const store = localStorage.getItem('storeID') || '';
         const aToken = session?.user?.aToken ?? '';
         const rToken = session?.user?.rToken ?? '';
         const shopID = localStorage.getItem('storeID') || '';
         const addedProducts: CartProduct[] = JSON.parse(localStorage.getItem("VMcart") || '[]');
         setTotalPrice(Number(findTotal(addedProducts, '+')));
-        getCurrencyType(storeID, accessToken, refreshToken);
+        getCurrencyType(storeID, aToken, rToken);
         const currency = localStorage.getItem('currence') || 'SEK';
 
         setCurrence(currency);
@@ -77,6 +83,13 @@ const categoryProducts = ( ) => {
     }
 
     const handleAddClick = (Product: TypeProduct) => {
+        let result = checkAgeRistriction(Product);
+        if (result) {
+            handlingAdd(Product); // pass the product directly
+        }
+    };
+
+    const handlingAdd = (Product: TypeProduct) => {
         if (Product.isDiscount) {
             updateDiscountProductInCartVMP(Product, '+', setProducts, setTotalPrice);
         } else if (Product.sale && Product.salePrice === 0 && Product.saleGroupRules.length > 0) {
@@ -112,49 +125,6 @@ const categoryProducts = ( ) => {
         }
     };
 
-    const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const cartProducts: CartProduct[] = JSON.parse(localStorage.getItem('VMcart') || '[]');
-
-        const searchUrl = searchTerm.trim() === ''
-            ? `${apiUrl}/products?shopId=${storeID}&isVending=true`
-            : `${apiUrl}/products?shopId=${storeID}&title=${searchTerm}&limit=50&productType=vending`;
-
-        try {
-            const response = await axios.get(searchUrl, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'accept': '*/*',
-                    'env': environment,
-                },
-            });
-
-            let fetchedProducts: TypeProduct[] = response.data.data;
-
-            if (cartProducts.length > 0) {
-                fetchedProducts = changeProductQuantity(fetchedProducts,'VMcart');
-            }
-
-            setProducts(fetchedProducts);
-            setSearchTerm(searchTerm);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-        }
-    };
-
-    const handleCheckout = () => {
-
-        if (totalPrice > 0) {
-            router.push('/sapp/checkout');
-        } else {
-            setNoproduct(true);
-        }
-    };
-
-    const filteredProducts: TypeProduct[] = products?.filter(
-        (product) => product.title.toLowerCase().includes(searchTerm) && product.isVending
-    );
-
     const showSalePopup = (productID: string) => {
         const foundProduct: TypeProduct | undefined = products?.find(product => product._id === productID);
         const temp: TypeProduct[] = [];
@@ -169,6 +139,23 @@ const categoryProducts = ( ) => {
             setShowPopup(true);
         }
     };
+
+    const checkAgeRistriction = (Product: any) => {
+        if (Product.ageRestriction !== '') {
+            setIsAgeRestriction(true);
+            setAgerestriction(Product.ageRestriction);
+            setSelectedProduct(Product); 
+            return false;
+        }
+        return true;
+    };
+    
+    const handleAgeRestrictionButtonClick = (action: string) => {
+        if (action == 'yes') {
+            handlingAdd(selectedProduct);
+        }
+        setIsAgeRestriction(false);
+    }
 
     return (
         <div className="">
@@ -261,25 +248,40 @@ const categoryProducts = ( ) => {
                             )}
                         </div>
                     )}
-
-                    {/* <div className={`shadow-[0_0_20px_5px_rgba(255,255,255,0.5)] bg-buttonColor px-3 flex items-center justify-between rounded-t-lg py-5 bottom-0 left-0 w-full fixed ${isProductfetched ? 'hidden' : 'block'}`}>
-                        <button
-                            onClick={handleCheckout}
-                            className="p-2 px-10 font-semibold text-lg bg-white text-black rounded-full text-center"
-                        >
-                            Checkout
-                        </button>
-
-                        <div className="flex items-center text-white font-semibold tracking-wider gap-2">
-                            <span> Total <br /> {totalPrice} </span>
-                            <div className="h-16 w-16 flex items-center justify-center bg-white rounded-full">
-                                <Image src='/images/basket.png' alt='' width={1000} height={1000} className="h-9 w-9" />
-                            </div>
-                        </div>
-                    </div> */}
                 </div>
             )}
 
+            {
+                isAgeRestriction && (
+                    <div className="fixed text-lg inset-0 flex items-center justify-center bg-black bg-opacity-50 px-2 pb-5 font-poppins z-50">
+                        <div className="flex flex-col gap-3 bg-white rounded-lg relative p-5 gap-5">
+                            <Image src='/images/Group.png' alt='icon' className='w-10 h-10 absolute top-[-20] left-48' width={1000} height={100} />
+                            <div className="flex flex-col w-full items-center justify-center gap-2">
+                                <strong className="text-center">This Product is Restricted from Consumption for</strong>
+                                <strong className="text-red-500 text-center">People Below the age of {ageRestriction}</strong>
+                                <strong className="text-center">Click <span className="text-red-500">YES</span> if you wish to add this product to the cart</strong>
+                            </div>
+
+                            <div className="flex items-center justify-center gap-2 w-full">
+                                <button
+
+                                    className="bg-red-500 text-white text-center rounded-full px-16 py-3"
+                                    onClick={() => handleAgeRestrictionButtonClick('yes')}
+                                >
+                                    Yes
+                                </button>
+                                <button
+
+                                    className="bg-gray-200 text-black text-center rounded-full px-16 py-3"
+                                    onClick={() => handleAgeRestrictionButtonClick('no')}
+                                >
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
             {showPopup && (
                 <div className="fixed inset-0 flex items-end justify-center bg-black bg-opacity-50 px-5 pb-5 font-poppins z-[100]" >

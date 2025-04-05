@@ -8,17 +8,9 @@ import { findTotal, fetchVMProducts, fetchNobareCodeProducts, fetchFProducts, up
 
 const Checkout = () => {
     const route = useRouter();
-    const [isPayCliked, setIsPayClicked] = useState(false);
     const [cartProducts, setCartProducts] = useState<any[]>([]);
     const [currency, setCurrency] = useState<string>('SEK');
     const [ref, setRef] = useState('');
-    const handleCountClick = (action: string) => {
-        if (action == '-') {
-
-        } else {
-
-        }
-    }
 
     useEffect(() => {
         let temp: any = [];
@@ -37,15 +29,16 @@ const Checkout = () => {
             temp.push(product);
         })
 
-        console.log(temp);
         setCartProducts(temp);
-        let total = localStorage.getItem('total');
-
-
         const storedCurrency = localStorage.getItem('currency');
         if (storedCurrency) {
             setCurrency(storedCurrency);
         }
+
+        let VMtotal = Number(localStorage.getItem('VMtotal')) || 0;
+        let NOBTotal = Number(localStorage.getItem('NOBcart')) || 0;
+        let FPcart = Number(localStorage.getItem('FPcart')) || 0;
+        let actualTotal = VMtotal + NOBTotal + FPcart;
     }, [])
 
     const handlePayClicked = () => {
@@ -143,7 +136,7 @@ const Checkout = () => {
                                                                         </span>
                                                                     </div>
                                                                 </div>
-                                                                <div className="flex font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
+                                                                <div className="flex text-2xl font-bold font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
                                                                     <button onClick={() => updateCartProductQuantity(pro, '-', setRef)}>-</button>
                                                                     <span>{rule.productQuantiy * rule.saleRule.count}</span>
                                                                     <button onClick={() => updateCartProductQuantity(pro, '+', setRef)}>+</button>
@@ -170,12 +163,13 @@ const Checkout = () => {
                                                                     </span>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
+                                                            <div className="flex text-2xl font-bold font-semibold items-center justify-center gap-2 border-2 border-gray-400 rounded-full px-8 py-4 h-4">
                                                                 <button onClick={() => updateCartProductQuantity(pro, '-', setRef)}>-</button>
                                                                 <span>{total}</span>
                                                                 <button onClick={() => updateCartProductQuantity(pro, '+', setRef)}>+</button>
                                                             </div>
                                                         </div>
+
                                                     )}
                                                 </div>
                                             );

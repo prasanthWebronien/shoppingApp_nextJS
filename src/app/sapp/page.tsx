@@ -162,19 +162,20 @@ export default function Home() {
 
             const session = await getSession();
             if (result?.status === 200) {
-                const aToken = session?.user.aToken || '';
-                const rToken = session?.user.rToken || '';
+                router.push('/sapp/dashBoard2');
+                // const aToken = session?.user.aToken || '';
+                // const rToken = session?.user.rToken || '';
 
-                const fetchedStores = await fetchStoresUtils(aToken, rToken, 'getCurrectLocatio1');
-                const nearbyStore = fetchedStores?.[0];
-                localStorage.setItem('nearByStore', JSON.stringify(nearbyStore));
+                // const fetchedStores = await fetchStoresUtils(aToken, rToken, 'getCurrectLocatio1');
+                // const nearbyStore = fetchedStores?.[0];
+                // localStorage.setItem('nearByStore', JSON.stringify(nearbyStore));
 
-                if (nearbyStore && nearbyStore.distanceInKm <= Number(Distance)) {
-                    localStorage.setItem('storeID', nearbyStore.id);
-                    router.push('/sapp/StoreDoor');
-                } else {
-                    router.push('/sapp/stores');
-                }
+                // if (nearbyStore && nearbyStore.distanceInKm <= Number(Distance)) {
+                //     localStorage.setItem('storeID', nearbyStore.id);
+                //     router.push('/sapp/StoreDoor');
+                // } else {
+                //     router.push('/sapp/stores');
+                // }
             }
         } catch (error) {
             console.error('Error: ' + error);
@@ -185,7 +186,7 @@ export default function Home() {
         let doorStatus = localStorage.getItem('door') || '';
 
         if (session?.user.fname && doorStatus != 'opened') {
-            router.push("sapp/products");
+            router.push("sapp/dashBoard2");
         }
         const orderReference = localStorage.getItem('orderReferance');
         setAccessToken(session?.user?.aToken ?? '');
@@ -226,22 +227,20 @@ export default function Home() {
             const session = await getSession();
 
             if (result?.status === 200) {
-                const aToken = session?.user.aToken || '';
-                const rToken = session?.user.rToken || '';
+                router.push('/sapp/dashBoard2');
+                // const aToken = session?.user.aToken || '';
+                // const rToken = session?.user.rToken || '';
 
+                // const fetchedStores = await fetchStoresForBankID(aToken, rToken, location)
+                // const nearbyStore = fetchedStores?.[0];
 
-                // const fetchedStores = await fetchStoresUtils(aToken, rToken, 'getCurrectLocatio');
-                const fetchedStores = await fetchStoresForBankID(aToken, rToken, location)
-
-                const nearbyStore = fetchedStores?.[0];
-
-                if (nearbyStore && nearbyStore.distanceInKm <= Number(Distance)) {
-                    localStorage.setItem('storeID', nearbyStore.id);
-                    localStorage.setItem('nearByStore', JSON.stringify(nearbyStore));
-                    router.push('/sapp/StoreDoor');
-                } else {
-                    router.push('/sapp/stores');
-                }
+                // if (nearbyStore && nearbyStore.distanceInKm <= Number(Distance)) {
+                //     localStorage.setItem('storeID', nearbyStore.id);
+                //     localStorage.setItem('nearByStore', JSON.stringify(nearbyStore));
+                //     router.push('/sapp/StoreDoor');
+                // } else {
+                //     router.push('/sapp/stores');
+                // }
             }
         } catch (err) {
             console.log(err);
